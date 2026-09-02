@@ -1,52 +1,27 @@
-<<<<<<< HEAD
-﻿{
-  "name": "my-render-app",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "npx serve -s dist",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "workbox-window": "^7.4.1"
-  },
-  "devDependencies": {
-    "vite": "^5.4.21",
-    "esbuild": "^0.18.20"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
-  }
-=======
-﻿{
-  "name": "my-render-app",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "npx serve -s dist",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "workbox-window": "^7.4.1"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0",
-    "esbuild": "^0.18.20"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
-  }
->>>>>>> c33bf4c706dd1335d933ea608b4d391fe3a9a74d
+{
+"name": "my-render-app",
+"version": "1.0.0",
+"private": true,
+"type": "module",
+"engines": {
+"node": ">=22.0.0"
+},
+"scripts": {
+"dev": "vite",
+"build": "vite build",
+"start": "npx serve -s dist",
+"preview": "vite preview"
+},
+"dependencies": {
+"workbox-window": "^7.4.1"
+},
+"devDependencies": {
+"vite": "^5.4.21",
+"esbuild": "^0.18.20"
+},
+"pnpm": {
+"onlyBuiltDependencies": [
+"esbuild"
+]
+}
 }
