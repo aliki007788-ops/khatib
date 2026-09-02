@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>خطیب | مربی سخنرانی و گویش عراقی</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app-shell">
+
+  <!-- AUTH -->
+  <section id="auth-screen" class="screen">
+    <div class="auth-hero">
+      <div class="logo-circle">🎙️</div>
+      <h1>خطیب</h1>
+      <p class="tagline">مربی شخصی سخنرانی و گویش عراقی</p>
+    </div>
+    <div class="auth-card">
+      <input id="name" placeholder="نام شما" autocomplete="name">
+      <input id="email" placeholder="ایمیل" type="email" autocomplete="email">
+      <input id="pass" placeholder="رمز عبور" type="password" autocomplete="current-password">
+      <button class="btn-primary" onclick="register()">ثبت‌نام و شروع</button>
+      <button class="btn-ghost" onclick="login()">ورود</button>
+      <p id="authmsg" class="msg-hint"></p>
+    </div>
+  </section>
+
+  <!-- MAIN APP -->
+  <section id="main-app" class="screen" hidden>
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-icon">🎙️</span>
+        <div>
+          <strong>خطیب</strong>
+          <small id="user-level">مبتدی</small>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="logout()" title="خروج">⎋</button>
+    </header>
+
+    <main id="content">
+      <!-- HOME -->
+      <div id="tab-home" class="tab active">
+        <div class="welcome-card">
+          <h2 id="welcome-name">سلام 👋</h2>
+          <p>امروز می‌خوای روی چه مهارتی کار کنی؟</p>
+        </div>
+        <div class="quick-actions">
+          <button class="qa-card speech" onclick="goTab('speech')">
+            <span class="qa-icon">🎤</span>
+            <span>تمرین سخنرانی</span>
+            <small>هسته اصلی</small>
+          </button>
+          <button class="qa-card chat" onclick="goTab('chat')">
+            <span class="qa-icon">💬</span>
+            <span>مکالمه عراقی</span>
+            <small>با مربی AI</small>
+          </button>
+          <button class="qa-card translate" onclick="goTab('translate')">
+            <span class="qa-icon">🔄</span>
+            <span>ترجمه</span>
+            <small>فارسی ↔ عراقی</small>
+          </button>
+          <button class="qa-card learn" onclick="goTab('learn')">
+            <span class="qa-icon">📚</span>
+            <span>آموزش روزانه</span>
+            <small>جمله و سناریو</small>
+          </button>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><b id="st-speech">۰</b><span>تمرین</span></div>
+          <div class="stat"><b id="st-score">—</b><span>بهترین نمره</span></div>
+          <div class="stat"><b id="st-plan">رایگان</b><span>پلن</span></div>
+        </div>
+      </div>
+
+      <!-- SPEECH -->
+      <div id="tab-speech" class="tab">
+        <div class="section-title">🎤 تمرین سخنرانی</div>
+        <div class="card">
+          <label>موضوع</label>
+          <input id="topic" placeholder="مثلاً: معرفی خودم / فروش محصول / سخنرانی سیاسی">
+          <div id="coach-tip" class="tip-box">نکته مربی اینجا نمایش داده می‌شود</div>
+          <label>متن سخنرانی (اختیاری)</label>
+          <textarea id="speechtext" rows="5" placeholder="متن را بنویس یا مستقیم صدا ضبط کن..."></textarea>
+          <div class="btn-row">
+            <button class="btn-primary" onclick="analyzeText()">تحلیل متن</button>
+            <button id="rec-btn" class="btn-record" onclick="toggleRecord()">🎙️ شروع ضبط</button>
+          </div>
+          <p id="rec-status" class="msg-hint"></p>
+        </div>
+        <div id="result-box" class="card result-card" hidden>
+          <div class="score-big" id="score-display">—</div>
+          <div class="feedback-block">
+            <h4>نقاط قوت</h4>
+            <ul id="fb-strengths"></ul>
+            <h4>نقاط ضعف</h4>
+            <ul id="fb-weaknesses"></ul>
+            <h4>پیشنهاد بهبود</h4>
+            <ul id="fb-improvements"></ul>
+            <p class="structure" id="fb-structure"></p>
+            <div class="next-box" id="fb-next"></div>
+          </div>
+          <button class="btn-ghost" onclick="resetSpeech()">تمرین جدید</button>
+        </div>
+      </div>
+
+      <!-- CHAT -->
+      <div id="tab-chat" class="tab">
+        <div class="section-title">💬 مکالمه با مربی عراقی</div>
+        <div class="chat-container">
+          <div id="chatbox" class="chatbox"></div>
+          <div class="chat-input-row">
+            <input id="msg" placeholder="پیامت را بنویس..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="btn-primary" onclick="sendChat()">ارسال</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSLATE -->
+      <div id="tab-translate" class="tab">
+        <div class="section-title">🔄 ترجمه فارسی ↔ عراقی</div>
+        <div class="card">
+          <textarea id="src-text" rows="4" placeholder="متن فارسی یا عراقی را بنویس..."></textarea>
+          <button class="btn-primary full" onclick="doTranslate()">ترجمه کن</button>
+          <div id="trans-result" class="trans-result" hidden>
+            <div class="trans-main" id="trans-main"></div>
+            <div class="trans-sub" id="trans-sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEARN -->
+      <div id="tab-learn" class="tab">
+        <div class="section-title">📚 آموزش روزانه</div>
+        <div class="card learn-card">
+          <h3>جمله‌ی روز</h3>
+          <p class="ar-sentence">شلونك الیوم؟ شكو ماكو؟</p>
+          <p class="fa-sentence">چطوری امروز؟ چه خبر؟</p>
+          <button class="btn-ghost" onclick="speakAr('شلونك الیوم؟ شكو ماكو؟')">🔊 پخش</button>
+        </div>
+        <div class="card">
+          <h3>سناریوهای پیشنهادی</h3>
+          <div class="scenario-list">
+            <button onclick="useTopic('معرفی خود در جلسه کاری')">معرفی خود در جلسه</button>
+            <button onclick="useTopic('درخواست افزایش حقوق')">درخواست افزایش حقوق</button>
+            <button onclick="useTopic('سخنرانی کوتاه در جمع')">سخنرانی کوتاه در جمع</button>
+            <button onclick="useTopic('فروش محصول به مشتری')">فروش محصول</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE / PLANS -->
+      <div id="tab-profile" class="tab">
+        <div class="section-title">👤 پروفایل و اشتراک</div>
+        <div class="card">
+          <div class="profile-head">
+            <div class="avatar">🎙️</div>
+            <div>
+              <b id="prof-name">کاربر</b>
+              <small id="prof-email"></small>
+            </div>
+          </div>
+        </div>
+        <div class="plans-grid">
+          <div class="plan-card">
+            <h4>رایگان</h4>
+            <b>۰ تومان</b>
+            <p>۳ تمرین در ماه</p>
+          </div>
+          <div class="plan-card featured">
+            <h4>پایه</h4>
+            <b>۹۹٬۰۰۰</b>
+            <p>۱۵ تمرین + بازخورد کامل</p>
+            <button onclick="buy('base')">فعال‌سازی</button>
+          </div>
+          <div class="plan-card">
+            <h4>حرفه‌ای</h4>
+            <b>۲۴۹٬۰۰۰</b>
+            <p>نامحدود + مربی پیشرفته</p>
+            <button onclick="buy('pro')">فعال‌سازی</button>
+          </div>
+        </div>
+        <p id="paymsg" class="msg-hint"></p>
+        <div class="card">
+          <h3>تاریخچه تمرین‌ها</h3>
+          <div id="historybox"></div>
+        </div>
+        <button class="btn-ghost full" onclick="logout()">خروج از حساب</button>
+      </div>
+    </main>
+
+    <!-- FIXED BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button data-tab="home" class="nav-item active" onclick="goTab('home')">
+        <span>🏠</span><small>خانه</small>
+      </button>
+      <button data-tab="speech" class="nav-item" onclick="goTab('speech')">
+        <span>🎤</span><small>سخنرانی</small>
+      </button>
+      <button data-tab="chat" class="nav-item" onclick="goTab('chat')">
+        <span>💬</span><small>مکالمه</small>
+      </button>
+      <button data-tab="translate" class="nav-item" onclick="goTab('translate')">
+        <span>🔄</span><small>ترجمه</small>
+      </button>
+      <button data-tab="profile" class="nav-item" onclick="goTab('profile')">
+        <span>👤</span><small>من</small>
+      </button>
+    </nav>
+  </section>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>

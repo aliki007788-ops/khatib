@@ -1,0 +1,99 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: khatib
+      POSTGRES_USER: khatib
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-khatib_password_change_me}
+    volumes: [khatib_pg:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U khatib -d khatib"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg://khatib:${POSTGRES_PASSWORD:-khatib_password_change_me}@db:5432/khatib
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-change_me_please_use_long_secret}
+      PASSWORD_PEPPER: ${PASSWORD_PEPPER:-change_pepper}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+      AI_MODEL: ${AI_MODEL:-gpt-4o-mini}
+      AI_FALLBACK_KEY: ${AI_FALLBACK_KEY:-}
+      AI_FALLBACK_BASE: ${AI_FALLBACK_BASE:-https://api.groq.com/openai/v1}
+      STT_MODEL: ${STT_MODEL:-whisper-1}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-demo}
+      ZARINPAL_MERCHANT_ID: ${ZARINPAL_MERCHANT_ID:-}
+      EITA_BOT_TOKEN: ${EITA_BOT_TOKEN:-}
+      EITA_BOT_WEBHOOK_SECRET: ${EITA_BOT_WEBHOOK_SECRET:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://127.0.0.1:8000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
+      CRON_ENABLED: "1"
+      AUTO_RENEW_ENABLED: ${AUTO_RENEW_ENABLED:-0}
+      SPEECH_ASYNC: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build: .
+    command: ["python", "worker.py"]
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DATABASE_URL: postgresql+psycopg://khatib:${POSTGRES_PASSWORD:-khatib_password_change_me}@db:5432/khatib
+      REDIS_URL: redis://redis:6379/0
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+      AI_MODEL: ${AI_MODEL:-gpt-4o-mini}
+      AI_FALLBACK_KEY: ${AI_FALLBACK_KEY:-}
+      AI_FALLBACK_BASE: ${AI_FALLBACK_BASE:-https://api.groq.com/openai/v1}
+      STT_MODEL: ${STT_MODEL:-whisper-1}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backup:
+    image: postgres:17
+    profiles: ["backup"]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-khatib_password_change_me}
+      PGHOST: db
+      PGUSER: khatib
+      PGDATABASE: khatib
+      BACKUP_DIR: /backups
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup_pg.sh:/backup.sh:ro
+    entrypoint: ["/bin/sh", "/backup.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  khatib_pg:
