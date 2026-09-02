@@ -1,0 +1,25 @@
+﻿{
+  "name": "my-render-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "npx serve -s dist",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "workbox-window": "^7.4.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "esbuild": "^0.18.20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
